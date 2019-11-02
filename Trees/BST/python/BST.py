@@ -4,8 +4,9 @@ from typing import Any, Optional
 
 
 class Node:
-    left: Node
-    right: Node
+    left: Optional[Node]
+    right: Optional[Node]
+    value: Any
 
     def __init__(self, value: Any):
         self.left = None
