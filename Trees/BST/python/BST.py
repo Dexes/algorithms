@@ -12,86 +12,57 @@ class Node:
     def __init__(self, value: Any, parent: Optional[Node] = None):
         self.left = None
         self.right = None
-        self.parent = parent
         self.value = value
 
-    @property
-    def is_root(self) -> bool:
-        return self.parent is None
+    def find_leaf(self, parent=None):
+        if self.left is not None:
+            return self.left.find_leaf(self)
 
-    @property
-    def is_leaf(self) -> bool:
-        return self.left is None and self.right is None
+        if self.right is not None:
+            return self.right.find_leaf(self)
 
-    def detach(self):
-        if self.parent is None:
-            return
+        return self, parent
 
-        if self.parent.left == self:
-            self.parent.left = None
-        else:
-            self.parent.right = None
+    def remove_minimum(self):
+        if self.left is None:
+            return self.right
 
-    @property
-    def deepest_leaf_on_left(self) -> Optional[Node]:
-        if self.is_leaf:
-            return None
-
-        current = self
-        while True:
-            if current.left is not None:
-                current = current.left
-            else:
-                current = current.right
-
-            if current.is_leaf:
-                return current
+        self.left = self.left.remove_minimum()
 
     def insert(self, node: Any):
         if node.value < self.value:
             if self.left is None:
                 self.left = node
-                node.parent = self
             else:
                 self.left.insert(node)
         else:
             if self.right is None:
                 self.right = node
-                node.parent = self
             else:
                 self.right.insert(node)
 
-    def remove(self) -> Optional[Node]:
-        left_is_none = self.left is None
-        right_is_none = self.right is None
+    def remove(self, value: Any) -> Optional[Node]:
+        if value < self.value:
+            self.left = self.left.remove(value)
+        elif value > self.value:
+            self.right = self.right.remove(value)
+        else:
+            if self.left is None or self.right is None:
+                return self.left if self.right is None else self.right
 
-        if left_is_none and right_is_none:
-            self.detach()
-            return None
+            leaf, leaf_parent = self.right.find_leaf()
+            leaf.right = self.right if self.right != leaf else None
+            leaf.left = self.left
 
-        if left_is_none != right_is_none:
-            child = self.left if right_is_none else self.right
-            if not self.is_root:
-                if self.parent.left == self:
-                    self.parent.left = child
+            if leaf_parent is not None:
+                if leaf_parent.left == leaf:
+                    leaf_parent.left = None
                 else:
-                    self.parent.right = child
+                    leaf_parent.right = None
 
-            return child
+            return leaf
 
-        deepest_leaf = self.right.deepest_leaf_on_left or self.right
-        deepest_leaf.detach()
-        deepest_leaf.parent = self.parent
-        deepest_leaf.left = self.left
-        deepest_leaf.right = self.right if self.right is not deepest_leaf else None
-
-        if not self.is_root:
-            if self.parent.left == self:
-                deepest_leaf.parent.left = deepest_leaf
-            else:
-                deepest_leaf.parent.right = deepest_leaf
-
-        return deepest_leaf
+        return self
 
     def find(self, value: Any) -> Optional[Node]:
         if value < self.value:
@@ -130,9 +101,7 @@ class Tree:
         if node is None:
             return False
 
-        instead_node = node.remove()
-        if node.is_root:
-            self.root = instead_node
+        self.root = self.root.remove(value)
 
         return True
 
