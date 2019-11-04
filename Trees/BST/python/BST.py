@@ -23,12 +23,6 @@ class Node:
 
         return self, parent
 
-    def remove_minimum(self):
-        if self.left is None:
-            return self.right
-
-        self.left = self.left.remove_minimum()
-
     def insert(self, node: Any):
         if node.value < self.value:
             if self.left is None:
