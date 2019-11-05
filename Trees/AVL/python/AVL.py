@@ -100,8 +100,14 @@ class Node:
 
     def remove(self, value: Any) -> Optional[Node]:
         if value < self.value:
+            if self.left is None:
+                raise self.NotFoundException()
+
             self.left = self.left.remove(value)
         elif value > self.value:
+            if self.right is None:
+                raise self.NotFoundException()
+
             self.right = self.right.remove(value)
         else:
             if self.left is None or self.right is None:
@@ -130,6 +136,9 @@ class Node:
 
         return self
 
+    class NotFoundException(Exception):
+        pass
+
 
 class Tree:
     root: Optional[Node]
@@ -148,11 +157,13 @@ class Tree:
         return node
 
     def remove(self, value: Any) -> bool:
-        node = self.find(value)
-        if node is None:
+        if self.root is None:
             return False
 
-        self.root = self.root.remove(value)
+        try:
+            self.root = self.root.remove(value)
+        except Node.NotFoundException:
+            return False
 
         return True
 
