@@ -10,3 +10,4 @@
 ## Структуры данных
 - [Двоичное дерево поиска (binary search tree, BST)](Data%20structures/BST)
 - [АВЛ-дерево](Data%20structures/AVL)
+- [Двоичное индексированное дерево (дерево Фенвика, binary indexed tree, BIT)](Data%20structures/BIT)
